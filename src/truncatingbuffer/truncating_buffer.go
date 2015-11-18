@@ -55,10 +55,6 @@ func (r *TruncatingBuffer) closeOutputChannel() {
 	close(r.outputChannel)
 }
 
-func (r *TruncatingBuffer) eventAllowed(eventType events.Envelope_EventType) bool {
-	return r.context.EventAllowed(eventType)
-}
-
 func (r *TruncatingBuffer) Run() {
 	defer r.closeOutputChannel()
 
@@ -78,7 +74,7 @@ func (r *TruncatingBuffer) Run() {
 			if !ok {
 				return
 			}
-			if r.eventAllowed(msg.GetEventType()) {
+			if r.context.EventAllowed(msg.GetEventType()) {
 				select {
 				case outputChannel <- msg:
 					if msgsSent < outputCapacity {
@@ -126,10 +122,10 @@ func (r *TruncatingBuffer) GetDroppedMessageCount() uint64 {
 
 func (r *TruncatingBuffer) notifyMessagesDropped(outputChannel chan *events.Envelope, deltaDropped, totalDropped uint64, appId string) {
 	metrics.BatchAddCounter("TruncatingBuffer.totalDroppedMessages", deltaDropped)
-	if r.eventAllowed(events.Envelope_LogMessage) {
+	if r.context.EventAllowed(events.Envelope_LogMessage) {
 		r.emitMessage(outputChannel, generateLogMessage(deltaDropped, totalDropped, appId, r.context.Identifier()))
 	}
-	if r.eventAllowed(events.Envelope_CounterEvent) {
+	if r.context.EventAllowed(events.Envelope_CounterEvent) {
 		r.emitMessage(outputChannel, generateCounterEvent(deltaDropped, totalDropped))
 	}
 }

@@ -59,6 +59,10 @@ properties:
   metron_agent.deployment:
     description: "Name of deployment (added as tag on all outgoing metrics)"
 
+  metron_agent.buffer_size:
+    description: "Size of the internal buffer used by metron to store messages. If the buffer gets full metron will drop the messages."
+    default: 100
+
   metron_agent.logrotate.freq_min:
     description: "The frequency in minutes which logrotate will rotate VM logs"
     default: 5

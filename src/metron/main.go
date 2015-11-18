@@ -59,11 +59,8 @@ func main() {
 		os.Exit(-1)
 	}
 
-	inputChan := make(<-chan *events.Envelope)
-	stopChan := make(chan struct{})
-	bufferContext := truncatingbuffer.NewDefaultContext("metron", "")
-	truncatingBuffer := truncatingbuffer.NewTruncatingBuffer(inputChan, 100, bufferContext, log, stopChan)
-	dopplerForwarder := dopplerforwarder.New(dopplerClientPool, []byte(config.SharedSecret), truncatingBuffer, log)
+	dopplerForwarder := dopplerforwarder.New(dopplerClientPool, []byte(config.SharedSecret), config.BufferSize, log)
+	go dopplerForwarder.Run()
 	messageTagger := tagger.New(config.Deployment, config.Job, config.Index, dopplerForwarder)
 	aggregator := messageaggregator.New(messageTagger, log)
 

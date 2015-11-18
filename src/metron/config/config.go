@@ -13,11 +13,11 @@ type TLSConfig struct {
 }
 
 type Config struct {
-	Syslog     string
-	Deployment string
-	Zone       string
-	Job        string
-	Index      uint
+	Syslog                        string
+	Deployment                    string
+	Zone                          string
+	Job                           string
+	Index                         uint
 
 	DropsondeIncomingMessagesPort int
 
@@ -25,13 +25,14 @@ type Config struct {
 	EtcdMaxConcurrentRequests     int
 	EtcdQueryIntervalMilliseconds int
 
-	LoggregatorDropsondePort int
-	SharedSecret             string
+	LoggregatorDropsondePort      int
+	SharedSecret                  string
 
-	MetricBatchIntervalSeconds uint
+	MetricBatchIntervalSeconds    uint
 
-	PreferredProtocol string
-	TLSConfig         TLSConfig
+	PreferredProtocol             string
+	TLSConfig                     TLSConfig
+	BufferSize                    uint
 }
 
 func ParseConfig(configFile string) (*Config, error) {

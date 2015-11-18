@@ -7,12 +7,13 @@ import (
 
 	"metron/clientpool"
 
+	"truncatingbuffer"
+
 	"github.com/cloudfoundry/dropsonde/metrics"
 	"github.com/cloudfoundry/dropsonde/signature"
 	"github.com/cloudfoundry/gosteno"
 	"github.com/cloudfoundry/sonde-go/events"
 	"github.com/gogo/protobuf/proto"
-	"truncatingbuffer"
 )
 
 var metricNames map[events.Envelope_EventType]string
@@ -52,11 +53,12 @@ func (d *DopplerForwarder) Run() {
 	go d.truncatingBuffer.Run()
 	envelope, ok := <-d.truncatingBuffer.GetOutputChannel()
 	if ok && envelope != nil {
-		d.Write(envelope)
+		d.write(envelope)
 	}
 }
+func (d *DopplerForwarder) Write(message *events.Envelope) {}
 
-func (d *DopplerForwarder) Write(message *events.Envelope) {
+func (d *DopplerForwarder) write(message *events.Envelope) {
 	client, err := d.clientPool.RandomClient()
 	if err != nil {
 		d.logger.Errord(map[string]interface{}{
