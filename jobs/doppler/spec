@@ -69,6 +69,7 @@ properties:
   doppler.syslog_skip_cert_verify:
     description: "When connecting over TLS, don't verify certificates for syslog sink"
     default: true
+
   loggregator.tls.ca:
     description: "CA root required for key/cert verification"
     default: ""
