@@ -30,6 +30,7 @@ type Config struct {
 	MessageDrainBufferSize        uint
 	SharedSecret                  string
 	SinkSkipCertVerify            bool
+	SinkTlsSkipCertVerify         bool
 	BlackListIps                  []iprange.IPRange
 	JobName                       string
 	Zone                          string

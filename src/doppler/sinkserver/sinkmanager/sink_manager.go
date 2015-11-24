@@ -25,30 +25,32 @@ type SinkManager struct {
 	messageDrainBufferSize uint
 	dropsondeOrigin        string
 
-	metrics        *metrics.SinkManagerMetrics
-	recentLogCount uint32
+	metrics                *metrics.SinkManagerMetrics
+	recentLogCount         uint32
 
-	doneChannel         chan struct{}
-	errorChannel        chan *events.Envelope
-	urlBlacklistManager *blacklist.URLBlacklistManager
-	sinks               *groupedsinks.GroupedSinks
-	skipCertVerify      bool
-	sinkTimeout         time.Duration
-	sinkIOTimeout       time.Duration
-	metricTTL           time.Duration
-	dialTimeout         time.Duration
-	logger              *gosteno.Logger
+	doneChannel            chan struct{}
+	errorChannel           chan *events.Envelope
+	urlBlacklistManager    *blacklist.URLBlacklistManager
+	sinks                  *groupedsinks.GroupedSinks
+	skipCertVerify         bool
+	skipTlsCertVerify      bool
+	sinkTimeout            time.Duration
+	sinkIOTimeout          time.Duration
+	metricTTL              time.Duration
+	dialTimeout            time.Duration
+	logger                 *gosteno.Logger
 
-	stopOnce sync.Once
+	stopOnce               sync.Once
 }
 
-func New(maxRetainedLogMessages uint32, skipCertVerify bool, blackListManager *blacklist.URLBlacklistManager, logger *gosteno.Logger, messageDrainBufferSize uint, dropsondeOrigin string, sinkTimeout, sinkIOTimeout, metricTTL, dialTimeout time.Duration) *SinkManager {
+func New(maxRetainedLogMessages uint32, skipCertVerify bool, skipTlsCertVerify bool, blackListManager *blacklist.URLBlacklistManager, logger *gosteno.Logger, messageDrainBufferSize uint, dropsondeOrigin string, sinkTimeout, sinkIOTimeout, metricTTL, dialTimeout time.Duration) *SinkManager {
 	return &SinkManager{
 		doneChannel:            make(chan struct{}),
 		errorChannel:           make(chan *events.Envelope, 100),
 		urlBlacklistManager:    blackListManager,
 		sinks:                  groupedsinks.NewGroupedSinks(logger),
 		skipCertVerify:         skipCertVerify,
+		skipTlsCertVerify:      skipTlsCertVerify,
 		recentLogCount:         maxRetainedLogMessages,
 		metrics:                metrics.NewSinkManagerMetrics(),
 		logger:                 logger,
@@ -230,7 +232,7 @@ func (sinkManager *SinkManager) registerNewSyslogSink(appId string, syslogSinkUr
 		return
 	}
 
-	syslogWriter, err := syslogwriter.NewWriter(parsedSyslogDrainUrl, appId, sinkManager.skipCertVerify, sinkManager.dialTimeout, sinkManager.sinkIOTimeout)
+	syslogWriter, err := syslogwriter.NewWriter(parsedSyslogDrainUrl, appId, sinkManager.skipCertVerify, sinkManager.skipTlsCertVerify, sinkManager.dialTimeout, sinkManager.sinkIOTimeout)
 	if err != nil {
 		sinkManager.SendSyslogErrorToLoggregator(invalidSyslogUrlErrorMsg(appId, syslogSinkUrl, err), appId, syslogSinkUrl)
 		return
